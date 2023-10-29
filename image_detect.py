@@ -66,6 +66,7 @@ uploaded_file = st.file_uploader('Choose an image', type=['jpg','png'])
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
     img_path = f'img/{uploaded_file.name}'
+
     img.save(img_path)
     objects = detect_objects(img_path)
 
@@ -84,7 +85,7 @@ if uploaded_file is not None:
        draw.rectangle([(x,y),(x+w,y+h)],fill=None,outline='green',width=5)
 
        #文字を描いたときのサイズを指定
-       font = ImageFont.truetype(font='./arial.ttf',size=18)
+       font = ImageFont.truetype(font='./arial.ttf',size=500)
 
        # テキストのバウンディングボックスを取得
        bbox = draw.textbbox((x, y), caption, font=font)
@@ -105,3 +106,4 @@ if uploaded_file is not None:
 
     st.markdown('**認識されたコンテンツタグ**')
     st.markdown(f'{tags_name}')
+    os.remove(img_path)
