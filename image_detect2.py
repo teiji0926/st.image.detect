@@ -17,13 +17,13 @@ import io
 env_path = 'C:/Users/teiji/OneDrive/Desktop/streamlit/Image_Recognition/.env'
 load_dotenv(dotenv_path=env_path, override=True)
 
-subscription_key = os.getenv("VISION_KEY")
-endpoint = os.getenv("VISION_ENDPOINT")
+subscription_key = st.secrets["AZURE"]["VISION_KEY"]
+endpoint = st.secrets["AZURE"]["VISION_ENDPOINT"]
+connection_string = st.secrets["AZURE"]["AZURE_STORAGE_CONNECTION_STRING"]
+container_name = st.secrets["AZURE"]["AZURE_STORAGE_CONTAINER_NAME"]
 
-# Azure Storageの認証情報を設定
-connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
+
 
 # Computer Vision Clientの作成
 computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
