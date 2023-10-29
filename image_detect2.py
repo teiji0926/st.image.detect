@@ -13,15 +13,15 @@ import requests
 import io
 
 
-# .env ファイルのパスを指定（必要に応じて）
-env_path = 'C:/Users/teiji/OneDrive/Desktop/streamlit/Image_Recognition/.env'
-load_dotenv(dotenv_path=env_path, override=True)
 
+#st内のシークレットから持ってくる環境変数
 subscription_key = st.secrets["AZURE"]["VISION_KEY"]
 endpoint = st.secrets["AZURE"]["VISION_ENDPOINT"]
 connection_string = st.secrets["AZURE"]["AZURE_STORAGE_CONNECTION_STRING"]
 container_name = st.secrets["AZURE"]["AZURE_STORAGE_CONTAINER_NAME"]
 
+
+#Azure Blob Storageに接続するためのクライアントを作成
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
 
@@ -49,9 +49,14 @@ if uploaded_file is not None:
     # Blob名を設定
     blob_name = uploaded_file.name
     # Blobへのアップロード
+    #特定のBlobと通信するためのクライアントを作成しています。具体的には、blob_service_clientのget_blob_clientメソッドを呼び出して、
+    #特定のコンテナとBlobにアクセスするためのBlobClientインスタンスを取得しています。
+    #BlobClientオブジェクトは、指定された名前のBlobに対する操作を行うためのクライアントを提供しますが、このクライアントを作成する時点でBlobが実際に存在する必要はありません。
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
     blob_client.upload_blob(uploaded_file, overwrite=True)
     # BlobのURLを取得
+    #{blob_service_client.account_name} は、Azure Blob Storageのアカウント名を示します。
+    #この部分はBlobServiceClientオブジェクトのaccount_nameプロパティから取得されます。
     blob_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{blob_name}"
 
     # 物体検出とタグ取得
@@ -60,9 +65,12 @@ if uploaded_file is not None:
 
     # 画像をダウンロードしてPILで開く
     response = requests.get(blob_url)
+    #response.contentは、HTTPレスポンスのボディコンテンツをバイト形式で返します。このコンテンツは通常、バイナリデータ（この場合は画像データ）です。
+    #io.BytesIO(response.content)は、ディスクに保存することなく、メモリ上で画像データを「ファイル」のように扱うための仮想的な「ファイル」を作成しています
     img = Image.open(io.BytesIO(response.content))
 
     # 描画
+    #描画の準備！
     draw = ImageDraw.Draw(img)
     p_name = []
     for object in objects:
